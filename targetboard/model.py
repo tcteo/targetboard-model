@@ -25,6 +25,17 @@ def xy_lines(step=None, rot_z=None, length=None):
                 s.cube([length,panel_gap,h+1])
                 s.cube([panel_gap,length,h+1])
 
+def mx_stem(mx_stem_height=3.6):
+    with s.translate([-1.25/2,-3.5/2,0]):
+        s.cube([1.25,3.5,mx_stem_height])
+    with s.translate([-3.5/2,-1.25/2,0]):
+        s.cube([3.5,1.25,mx_stem_height])
+
+def mx_socket(socket_height=5, mx_stem_height=3.6):
+    with s.difference():
+        s.cylinder(r=2.5,h=socket_height)
+        with s.translate([0,0,socket_height-mx_stem_height+zfe]):
+            mx_stem()
 
 def model():
     m = s.ScadContext()
@@ -47,6 +58,20 @@ def model():
                     for rot in [0,90,180,270]:
                         xy_lines(step=step, rot_z=rot, length=100)
 
+        with s.translate([0,0,h]):
+            # socket at 0,0
+            mx_socket()
+            for rot in range(0,360,45):
+                with s.rotate([0, 0, rot]):
+                    with s.translate([base_size*(steps[1]+steps[0])/2-panel_gap, 0, 0]):
+                        mx_socket()
+
+            # TODO these sockets aren't positioned right.
+            for rot_ in range(0,3600,225):
+                rot = rot_/10
+                with s.rotate([0, 0, rot]):
+                    with s.translate([base_size*steps[1]*1.2-panel_gap, 0, 0]):
+                        mx_socket()
 
     return m
 
